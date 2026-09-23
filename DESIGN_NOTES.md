@@ -68,7 +68,6 @@ Laya choice → 13 神经元输入电流 → LIF 跑 40 步(积分-泄漏-发放
 fly-brain-agent/
 ├── pipeline.py          # 端到端 FastAPI 服务 (Laya + LIF + 运动解码)
 ├── motor_map.py         # 13 神经元 LIF 网络 + 运动指令解码
-├── build_manifest.py    # [已废弃] 自烘焙几何导出 (有 bug, 不再使用)
 ├── serve.py             # 本地 dev server: COOP/COEP 头 + /decide 反代到 :8000
 ├── brain-game/          # 两个前端页面, 共用后端 + 3D 果蝇
 │   ├── game.html        # [页面1] 自由赛道 + 神经放电 HUD 面板
@@ -91,8 +90,9 @@ fly-brain-agent/
 
 1. **Laya 是英文模型** — 中文 state 置信度全 <0.1; 换英文后决策正确
 2. **驱动曾 ∝ 绝对置信度** — 低 conf 时动作退化; 改成 choice 主导
-3. **自烘焙几何碎片** — build_manifest.py 丢了 mesh_face 面索引;
+3. **自烘焙几何碎片** — 早期自烘焙几何脚本丢了 mesh_face 面索引;
    最终决定: 不自己烘焙, 直接用 flygym 原生 STL + MuJoCo 加载
+   (该废弃脚本 build_manifest.py 已删除)
 
 ## 已完成 (闭环)
 

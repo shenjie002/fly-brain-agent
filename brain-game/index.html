@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FlyBrain Agent — Laya 神经决策 · 果蝇具身控制</title>
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; min-height: 100vh; color: #e6e8eb; font-family: -apple-system,
+    BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: radial-gradient(1200px 600px at 50% -10%, #1a2a3a, #0d1520 60%); }
+  .wrap { max-width: 900px; margin: 0 auto; padding: 64px 24px; }
+  h1 { font-size: 34px; margin: 0 0 6px; }
+  .sub { color: #9aa0a6; margin: 0 0 40px; line-height: 1.6; }
+  .cards { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  @media (max-width: 640px) { .cards { grid-template-columns: 1fr; } }
+  a.card { display: block; padding: 26px; border-radius: 14px; text-decoration: none;
+    color: inherit; background: rgba(20,22,27,.72); border: 1px solid rgba(255,255,255,.08);
+    transition: transform .15s, border-color .15s; }
+  a.card:hover { transform: translateY(-3px); border-color: #ff9800; }
+  .card h2 { margin: 0 0 8px; font-size: 20px; }
+  .card p { margin: 0; color: #9aa0a6; line-height: 1.55; font-size: 14px; }
+  .tag { display: inline-block; margin-bottom: 14px; font-size: 12px; letter-spacing: .5px;
+    color: #ff9800; }
+  .foot { margin-top: 40px; color: #6b7178; font-size: 13px; line-height: 1.7; }
+  .foot a { color: #9aa0a6; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>🧠 FlyBrain Agent</h1>
+  <p class="sub">
+    Laya 快脑决策 → 13 神经元 LIF 放电 → 果蝇 3D 具身运动的闭环 Demo。<br>
+    A closed-loop demo: language-model decision → spiking neurons (LIF) → embodied 3D fly.
+  </p>
+  <div class="cards">
+    <a class="card" href="./flappy.html">
+      <span class="tag">FLYBRAIN FLAPPY</span>
+      <h2>果蝇驾驶 Flappy 🐦</h2>
+      <p>果蝇的运动神经"驾驶"一只 Flappy 小鸟。看决策 → 放电 → 蹬腿 → 按键的完整链路。</p>
+    </a>
+    <a class="card" href="./game.html">
+      <span class="tag">RACE TRACK</span>
+      <h2>果蝇自主赛道 🏁</h2>
+      <p>果蝇用 CPG 六足步态自主穿越赛道，由 Laya 快脑实时决策转向。</p>
+    </a>
+  </div>
+  <p class="foot">
+    在线版运行在纯静态托管上，无 Python 后端：决策与神经放电由浏览器内的
+    离线 LIF 兜底计算（同一套 13 神经元动力学）。<br>
+    Online build runs on static hosting with no backend; decisions and spikes are
+    computed by an in-browser LIF fallback.<br>
+    源码 / Source: <a href="https://github.com/shenjie002/fly-brain-agent">github.com/shenjie002/fly-brain-agent</a>
+  </p>
+</div>
+</body>
+</html>

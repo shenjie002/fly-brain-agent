@@ -12,6 +12,7 @@
 import * as THREE from 'three';
 import { loadScene, buildMeshes, syncMeshes, makeStepper } from '../shared/scene.js';
 import { Controller } from '../shared/controller.js';
+import { decideOffline } from './neural-fallback.js';
 
 const PIPELINE_URL = 'http://localhost:8000';
 const AI_INTERVAL_MS = 120;              // Laya 决策间隔（后端实测~15ms，完全撑得住）
@@ -79,8 +80,8 @@ async function decide(now) {
   ai.busy = true; ai.lastCall = now;
   const state = buildState();
   ai.state = state;
+  const t0 = performance.now();
   try {
-    const t0 = performance.now();
     const res = await fetch(`${PIPELINE_URL}/decide`, {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ state, neural_steps: 40, dry_run: true }),
@@ -90,7 +91,10 @@ async function decide(now) {
     ai.latency = Math.round(performance.now() - t0);
     applyDecision(j);
   } catch (e) {
-    console.warn('[flappy] /decide failed:', e);
+    // 后端不可达（如 GitHub Pages 静态托管）：用浏览器内的离线神经兜底，
+    // 同一套 13 神经元 LIF 动力学照常算出 raster / firing_rates。
+    ai.latency = Math.round(performance.now() - t0);
+    applyDecision(decideOffline(state, 40));
   }
   ai.busy = false;
 }

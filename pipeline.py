@@ -128,14 +128,12 @@ def drive_flygym(cmd: motor_map.MotorCommand, *, dry_run: bool = True) -> dict:
         summary["flygym"] = "dry-run (no MuJoCo)"
         return summary
 
-    # 真正驱动 FlyGym（需要 flygym 安装 + flygym-2.1.0 资产）
-    flygym_path = os.path.expanduser("~/Downloads/flygym-2.1.0/src")
-    if flygym_path not in sys.path:
-        sys.path.insert(0, flygym_path)
+    # 真正驱动 FlyGym：需要把 flygym 作为正式依赖装进当前环境
+    # （pip install flygym）。装了就用，没装就返回提示，不依赖任何外部目录。
     try:
         from flygym import NeuroMechFly  # noqa: F401
     except Exception as exc:
-        summary["flygym"] = f"import-failed: {exc}"
+        summary["flygym"] = f"not-installed: {exc}"
         return summary
 
     fly = NeuroMechFly()

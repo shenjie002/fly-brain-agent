@@ -3,6 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- 在静态托管(GitHub Pages)上注入 COOP/COEP 头，让 MuJoCo WASM 能用 SharedArrayBuffer -->
+<script src="./coi-serviceworker.js"></script>
 <title>NeuroMechFly — the game</title>
 <style>
   :root { --fg: #e6e8eb; --muted: #9aa0a6; --accent: #8c9eff;
