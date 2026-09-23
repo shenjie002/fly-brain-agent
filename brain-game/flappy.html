@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FlyBrain Flappy — Laya 神经决策驾驶</title>
+<style>
+  :root { --fg:#e6e8eb; --muted:#9aa0a6; --accent:#ff9800;
+          --bg-a:#1a2a3a; --bg-b:#0d1520; --hud-bg:rgba(20,22,27,.82);
+          --stage-a:#2a2d36; --stage-b:#14161b; }
+  * { box-sizing:border-box; }
+  html,body { margin:0; height:100%; overflow:hidden; color:var(--fg);
+        background:#0d1520;
+        font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif; }
+
+  /* 布局：左边一列（上=小鸟游戏+按钮，下=3D果蝇），右边=神经面板 */
+  #wrap { display:flex; width:100vw; height:100vh; }
+  #left-col { flex:1; display:flex; flex-direction:column; min-width:0; }
+
+  /* 上半：小鸟游戏 */
+  #game-row { flex:none; display:flex; align-items:center; justify-content:center;
+        gap:22px; padding:16px 20px 10px; position:relative; }
+  #game { background:linear-gradient(180deg,var(--bg-a),var(--bg-b));
+        border-radius:12px; box-shadow:0 8px 30px rgba(0,0,0,.5); }
+  #controls { display:flex; flex-direction:column; gap:14px; }
+  .ctrl-btn { width:104px; padding:16px 0; border-radius:12px; text-align:center;
+        font-size:15px; font-weight:800; letter-spacing:.04em;
+        background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.12);
+        color:var(--muted); transition:all .08s; }
+  .ctrl-btn.on { background:var(--accent); color:#1a1200; border-color:var(--accent);
+        box-shadow:0 0 22px rgba(255,152,0,.6); transform:scale(1.05); }
+  .ctrl-btn .k { display:block; font-size:10px; font-weight:500; margin-top:4px; opacity:.75; }
+  #title { position:absolute; top:8px; left:20px; font-size:14px; font-weight:800;
+        text-shadow:0 1px 3px rgba(0,0,0,.7); }
+  #title small { display:block; font-size:10px; font-weight:500; color:var(--muted); margin-top:2px; }
+
+  /* 下半：3D 果蝇舞台 */
+  #stage-wrap { flex:1; position:relative; min-height:0;
+        border-top:1px solid rgba(255,255,255,.08);
+        background:radial-gradient(circle at 50% 40%, var(--stage-a) 0%, var(--stage-b) 100%); }
+  #stage { position:absolute; inset:0; }
+  #stage canvas { display:block; width:100%; height:100%; }
+  #stage-label { position:absolute; top:10px; left:16px; z-index:3; font-size:12px;
+        font-weight:700; color:var(--fg); text-shadow:0 1px 3px rgba(0,0,0,.8); }
+  #stage-label small { display:block; font-size:10px; font-weight:500; color:var(--muted); }
+  #stage-overlay { position:absolute; inset:0; z-index:4; display:flex; align-items:center;
+        justify-content:center; text-align:center; color:var(--muted); font-size:13px;
+        background:rgba(13,21,32,.85); padding:24px; }
+  #stage-overlay.hidden { display:none; }
+  #leg-pips { position:absolute; bottom:12px; left:50%; transform:translateX(-50%); z-index:3;
+        display:flex; gap:28px; font-size:11px; }
+  .legpip { text-align:center; color:var(--muted); }
+  .legpip .dot { width:44px; height:8px; border-radius:4px; margin-top:4px;
+        background:rgba(255,255,255,.1); transition:all .1s; }
+  .legpip.active .dot { background:var(--accent); box-shadow:0 0 12px rgba(255,152,0,.7); }
+  .legpip.active { color:var(--accent); font-weight:700; }
+
+  /* 右边：神经面板 */
+  #brain-col { width:300px; flex:none; background:var(--hud-bg); overflow-y:auto;
+        border-left:1px solid rgba(255,255,255,.08); padding:18px 16px; backdrop-filter:blur(6px); }
+  #brain-col h2 { margin:0 0 4px; font-size:14px; }
+  #brain-col .sub { font-size:11px; color:var(--muted); margin-bottom:14px; }
+  .panel { background:rgba(0,0,0,.28); border-radius:10px; padding:12px; margin-bottom:12px;
+        border:1px solid rgba(255,255,255,.06); }
+  .panel h3 { margin:0 0 8px; font-size:10px; text-transform:uppercase;
+        letter-spacing:.08em; color:var(--muted); }
+  #ai-choice { font-size:22px; font-weight:800; color:var(--accent); }
+  #ai-conf { font-size:11px; color:var(--muted); margin-top:2px; }
+  #ai-state { font-size:10px; color:rgba(255,255,255,.5); margin-top:6px;
+        line-height:1.4; font-style:italic; }
+  #ai-reason { font-size:11px; color:var(--fg); margin-top:6px; line-height:1.45; }
+  #spike-stats { font-size:10px; color:var(--muted); margin-top:8px;
+        display:flex; gap:14px; font-variant-numeric:tabular-nums; }
+  #spike-stats b { color:var(--accent); font-weight:700; }
+  #history { display:flex; flex-direction:column; gap:3px; }
+  .hrow { display:flex; align-items:center; gap:8px; font-size:10px;
+        font-variant-numeric:tabular-nums; }
+  .hrow .tag { width:44px; font-weight:700; }
+  .hrow.up .tag { color:#8ace00; }
+  .hrow.down .tag { color:#4d8bff; }
+  .hrow .hbar { flex:1; height:6px; border-radius:3px; background:rgba(255,255,255,.07);
+        overflow:hidden; }
+  .hrow .hbar i { display:block; height:100%; background:currentColor; }
+  .hrow.up { color:#8ace00; } .hrow.down { color:#4d8bff; }
+  .hrow .pct { width:32px; text-align:right; color:var(--muted); }
+  #raster { width:100%; height:200px; border-radius:6px; background:#0e1017;
+        image-rendering:pixelated; }
+  #rates { display:flex; flex-wrap:wrap; gap:2px 6px; font-size:9px; color:var(--muted); margin-top:6px; }
+  #rates .on { color:var(--accent); font-weight:700; }
+  #ai-latency { font-size:10px; color:rgba(255,255,255,.35); margin-top:8px; }
+  .legmeter { display:flex; align-items:center; gap:8px; margin-top:6px; font-size:10px; }
+  .legmeter .bar { flex:1; height:8px; border-radius:4px; background:rgba(255,255,255,.08); overflow:hidden; }
+  .legmeter .fill { height:100%; background:var(--accent); width:0%; transition:width .1s; }
+</style>
+<script type="importmap">
+{ "imports": { "three": "../shared/vendor/three/three.module.js" } }
+</script>
+</head>
+<body>
+<div id="wrap">
+  <div id="left-col">
+    <div id="game-row">
+      <div id="title">FlyBrain Flappy
+        <small>Laya 决策 → 果蝇左/右腿动作 → 上/下按钮 → 小鸟</small>
+      </div>
+      <canvas id="game" width="380" height="440"></canvas>
+      <div id="controls">
+        <div class="ctrl-btn" id="btn-up">↑ UP<span class="k">左腿蹬 · FLAP</span></div>
+        <div class="ctrl-btn" id="btn-down">↓ DOWN<span class="k">右腿蹬 · HOLD</span></div>
+      </div>
+    </div>
+    <div id="stage-wrap">
+      <div id="stage-label">🪰 真·果蝇 (MuJoCo 3D)
+        <small>Laya 的决策在这具身体上执行</small></div>
+      <div id="stage"></div>
+      <div id="leg-pips">
+        <div class="legpip" id="pip-left">左三腿<div class="dot"></div></div>
+        <div class="legpip" id="pip-right">右三腿<div class="dot"></div></div>
+      </div>
+      <div id="stage-overlay">正在加载 MuJoCo 与果蝇模型…</div>
+    </div>
+  </div>
+  <div id="brain-col">
+    <h2>🧠 Neural Cockpit</h2>
+    <div class="sub">果蝇的运动神经在“驾驶”小鸟</div>
+    <div class="panel">
+      <h3>Laya 快脑决策</h3>
+      <div id="ai-choice">—</div>
+      <div id="ai-conf">置信度 —</div>
+      <div id="ai-reason">—</div>
+      <div id="ai-state">waiting for game…</div>
+    </div>
+    <div class="panel">
+      <h3>果蝇运动神经图 (13 神经元)</h3>
+      <canvas id="raster" width="268" height="200"></canvas>
+      <div id="spike-stats"></div>
+      <div id="rates"></div>
+    </div>
+    <div class="panel">
+      <h3>决策流水 (最近在前)</h3>
+      <div id="history"></div>
+    </div>
+    <div class="panel">
+      <h3>运动输出 → 按键</h3>
+      <div class="legmeter">左腿 <div class="bar"><div class="fill" id="leg-l"></div></div></div>
+      <div class="legmeter">右腿 <div class="bar"><div class="fill" id="leg-r"></div></div></div>
+      <div class="legmeter">翅膀 <div class="bar"><div class="fill" id="wing-amp"></div></div></div>
+      <div id="ai-latency"></div>
+    </div>
+  </div>
+</div>
+<script type="module" src="./flappy.js"></script>
+</body>
+</html>
