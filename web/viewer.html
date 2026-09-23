@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FlyBrain — Laya 决策 → 神经放电 → 果蝇动作</title>
+<style>
+  :root { --fg:#e8eaed; --muted:#9aa0a6; --accent:#8c9eff; --hot:#ff5a5a; --cool:#2a3f5f; }
+  * { box-sizing:border-box; }
+  html,body { margin:0; height:100%; background:#0b2436; color:var(--fg);
+    font:14px/1.5 -apple-system,'PingFang SC',system-ui,sans-serif; overflow:hidden; }
+  #stage { position:fixed; inset:0; z-index:0; }
+  .panel { position:fixed; z-index:10; background:rgba(12,30,46,.82); border:1px solid rgba(140,158,255,.25);
+    border-radius:12px; padding:14px 16px; backdrop-filter:blur(8px); }
+  #scenarios button { pointer-events:auto; }
+  #left { top:16px; left:16px; width:250px; }
+  #right { top:16px; right:16px; width:230px; }
+  #bottom { left:50%; transform:translateX(-50%); bottom:16px; display:flex; gap:8px; padding:10px 12px; }
+  h2 { margin:0 0 10px; font-size:13px; color:var(--accent); letter-spacing:.5px; text-transform:uppercase; }
+  .row { display:flex; justify-content:space-between; align-items:center; margin:6px 0; }
+  .lab { color:var(--muted); }
+  .big { font-size:22px; font-weight:600; }
+  .bar { height:8px; background:var(--cool); border-radius:4px; overflow:hidden; margin-top:4px; }
+  .bar > i { display:block; height:100%; background:linear-gradient(90deg,#8c9eff,#5af0c8); width:0; transition:width .2s; }
+  button { background:rgba(140,158,255,.14); color:var(--fg); border:1px solid rgba(140,158,255,.4);
+    border-radius:8px; padding:9px 14px; cursor:pointer; font-size:14px; transition:.15s; }
+  button:hover { background:rgba(140,158,255,.3); }
+  button.active { background:var(--accent); color:#0b2436; font-weight:600; }
+  #neurons { display:grid; grid-template-columns:repeat(2,1fr); gap:4px 10px; margin-top:6px; }
+  .nrn { display:flex; align-items:center; gap:6px; font-size:12px; }
+  .dot { width:10px; height:10px; border-radius:50%; background:var(--cool); transition:background .1s, box-shadow .1s; flex:none; }
+  .dot.on { background:var(--hot); box-shadow:0 0 8px var(--hot); }
+  .nname { color:var(--muted); font-size:11px; }
+  #status { position:fixed; top:16px; left:50%; transform:translateX(-50%); font-size:12px; color:var(--muted);
+    background:rgba(12,30,46,.7); padding:5px 12px; border-radius:20px; }
+  .lat { font-size:11px; color:var(--muted); }
+</style>
+</head>
+<body>
+  <div id="stage"></div>
+  <div id="status">连接中…</div>
+
+  <div id="left" class="panel">
+    <h2>Laya 快脑决策</h2>
+    <div class="row"><span class="lab">动作</span><span id="act" class="big">—</span></div>
+    <div class="row"><span class="lab">置信度</span><span id="confnum">—</span></div>
+    <div class="bar"><i id="conffill"></i></div>
+    <div class="row" style="margin-top:10px"><span class="lab">场景</span><span id="scene">—</span></div>
+    <div class="lat" id="lat"></div>
+  </div>
+
+  <div id="right" class="panel">
+    <h2>神经元放电</h2>
+    <div id="neurons"></div>
+    <div class="row" style="margin-top:10px"><span class="lab">翅膀振幅</span><span id="wingamp">—</span></div>
+    <div class="row"><span class="lab">六足步态</span><span id="legphase">—</span></div>
+  </div>
+
+  <div id="bottom" class="panel">
+  <span id="scenarios" style="display:flex;gap:8px">
+    <button data-scene="flap" class="active">FLAP 上升</button>
+    <button data-scene="hold">HOLD 滑翔</button>
+    <button data-scene="walk">WALK 行走</button>
+    <button data-scene="turn">TURN 转向</button>
+  </span>
+  </div>
+
+  <script type="importmap">
+  { "imports": { "three": "./vendor/three.module.js" } }
+  </script>
+  <script type="module" src="./viewer.js?v=5"></script>
+</body>
+</html>

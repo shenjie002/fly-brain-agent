@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FlyBrain Flappy — NeuroMechFly × LIF</title>
+<style>
+  :root {
+    --fg:#e6e8eb; --muted:#9aa0a6; --accent:#8c9eff;
+    --fast:#8ace00; --slow:#ffb02e;
+    --stage-a:#0f3550; --stage-b:#061523;
+    --hud: rgba(10,20,30,.72); --stroke: rgba(255,255,255,.5);
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%;overflow:hidden;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    color:var(--fg);background:#071b27;}
+  #stage{position:relative;width:100vw;height:100vh;
+    background:linear-gradient(var(--stage-a),var(--stage-b));}
+  #stage canvas{display:block;width:100%;height:100%}
+
+  /* camera strip */
+  #cam{position:absolute;top:12px;left:50%;transform:translateX(-50%);z-index:9;
+    display:flex;gap:6px;padding:6px 8px;background:var(--hud);border:1px solid rgba(255,255,255,.12);
+    border-radius:10px;backdrop-filter:blur(4px);box-shadow:0 4px 18px rgba(0,0,0,.35);}
+  #cam button{font:inherit;font-size:12px;font-weight:600;color:var(--fg);background:transparent;
+    border:1px solid rgba(255,255,255,.18);border-radius:7px;padding:5px 12px;cursor:pointer;}
+  #cam button:hover{border-color:rgba(255,255,255,.5)}
+  #cam button.active{background:rgba(255,255,255,.14);border-color:var(--accent)}
+
+  /* left HUD */
+  #hud{position:absolute;left:12px;top:12px;z-index:8;pointer-events:none;width:178px;
+    background:var(--hud);border:1px solid rgba(255,255,255,.10);border-radius:12px;
+    padding:10px 12px;backdrop-filter:blur(4px);text-shadow:0 1px 2px rgba(0,0,0,.5);}
+  #hud .lab{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+  #scorebox{margin-top:0}
+  #score{font-size:34px;font-weight:800;font-variant-numeric:tabular-nums;line-height:1}
+  #best{font-size:11px;color:var(--muted);margin-top:2px}
+  .sep{height:1px;background:rgba(255,255,255,.12);margin:8px 0 8px}
+  #act{font-size:16px;font-weight:700;margin-top:2px;color:var(--fast)}
+  #confrow{display:flex;align-items:center;gap:6px;font-size:12px;margin-top:5px;color:var(--muted)}
+  #confbar{display:inline-block;width:72px;height:7px;border-radius:4px;background:rgba(255,255,255,.14);overflow:hidden}
+  #confbar i{display:block;height:100%;background:var(--accent);width:0}
+  #logs{margin-top:8px;padding-top:6px;border-top:1px solid rgba(255,255,255,.10);font-size:10.5px;
+    color:#c8d3da;line-height:1.5;max-height:96px;overflow:hidden}
+
+  #legend{position:absolute;bottom:12px;right:14px;z-index:8;font-size:11px;color:rgba(255,255,255,.6);
+    text-align:right;line-height:1.6;text-shadow:0 1px 2px rgba(0,0,0,.5);pointer-events:none}
+  #legend b.fast{color:var(--fast)} #legend b.slow{color:var(--slow)}
+
+  /* overlay */
+  #overlay{position:absolute;inset:0;z-index:10;display:flex;flex-direction:column;align-items:center;
+    justify-content:center;gap:12px;text-align:center;padding:22px;
+    background:rgba(7,18,26,.86);backdrop-filter:blur(3px);}
+  #overlay.hidden{display:none}
+  #overlay h1{font-size:26px;margin:0}
+  #overlay p{margin:0;color:var(--muted);font-size:13.5px;max-width:540px;line-height:1.55}
+  #overlay .big{font-size:74px;font-weight:800;line-height:1}
+  #overlay button{font:inherit;font-size:15px;font-weight:700;cursor:pointer;color:#0b1420;
+    background:var(--accent);border:0;border-radius:9px;padding:11px 28px;}
+</style>
+<script type="importmap">
+{ "imports": { "three": "./vendor/three.module.js" } }
+</script>
+</head>
+<body>
+<div id="stage">
+  <div id="cam">
+    <button data-cam="persp" class="active">透视 Persp</button>
+    <button data-cam="side">横看 Side</button>
+    <button data-cam="top">俯视 Top</button>
+  </div>
+  <div id="hud">
+    <div class="lab">Score</div>
+    <div id="score">0</div>
+    <div id="best">Best: —</div>
+    <div class="sep"></div>
+    <div class="lab">Laya 决策</div>
+    <div id="act">—</div>
+    <div id="confrow">conf <span id="confbar"><i></i></span> <span id="confnum" class="dim"></span></div>
+    <div id="logs">…</div>
+  </div>
+  <div id="legend">
+    <b class="fast">快轨 Fast: Laya 分类器直出 FLAP+confidence</b><br>
+    <b class="slow">慢轨 Slow: LIF 网络长程校准 → 交回快轨</b>
+  </div>
+  <div id="overlay">
+    <div class="spinner"></div>
+    <h1 id="ov-title">FlyBrain Flappy</h1>
+    <p id="ov-msg">Loading…</p>
+    <button id="ov-btn" class="hidden">开始</button>
+  </div>
+</div>
+<script type="module" src="./main.js"></script>
+</body>
+</html>

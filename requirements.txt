@@ -1,0 +1,7 @@
+neuprint-python>=0.6.3
+navis>=1.10.0
+plotly>=6.0.0
+numpy>=1.24.0
+fastapi>=0.110.0
+uvicorn>=0.29.0
+python-dotenv>=1.0.0

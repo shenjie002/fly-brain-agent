@@ -1,0 +1,137 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>FlyBrain Connectome + Flappy Bird Agent</title>
+    <style>
+        * { box-sizing: border-box; }
+
+        body { margin: 0; overflow: hidden; background: #0b0d12; color: #fff; font-family: sans-serif; }
+        #canvas-container { width: 100vw; height: 100vh; }
+        #panel {
+            position: absolute; top: 20px; left: 20px; width: 320px;
+            background: rgba(20, 25, 35, 0.85); padding: 18px; border-radius: 12px;
+            border: 1px solid rgba(255,255,255,0.1); backdrop-filter: blur(10px);
+        }
+        h2 { margin: 0 0 8px 0; font-size: 16px; color: #00f0ff; }
+        p { font-size: 12px; color: #a0aec0; margin: 0 0 12px 0; line-height: 1.4; }
+        .status-tag {
+            padding: 6px 10px; background: rgba(0,240,255,0.1); border: 1px solid #00f0ff;
+            color: #00f0ff; border-radius: 6px; font-size: 12px; font-family: monospace;
+        }
+        .btn-jump {
+            margin-top: 12px; width: 100%; padding: 10px; background: #007aff;
+            color: #fff; border: none; border-radius: 6px; cursor: pointer; font-weight: bold;
+        }
+        .btn-jump:hover { background: #0056b3; }
+    </style>
+    <!-- Three.js 核心库与 GLTF 加载器 -->
+    <script src="https://unpkg.com/three@0.128.0/build/three.min.js"></script>
+    <script src="https://unpkg.com/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+    <script src="https://unpkg.com/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+</head>
+<body>
+    <div id="canvas-container"></div>
+    <div id="panel">
+        <h2>果蝇真实神经网络 Agent</h2>
+        <p>基于真实 FlyWire 电镜扫描重建模型。<br/>大脑感知前方管道距离并驱动小鸟跳跃。</p>
+        <div id="status" class="status-tag">状态: 正在等待模型文件...</div>
+        <button class="btn-jump" onclick="triggerFlap()">手动测试：触发神经网络跳跃</button>
+    </div>
+
+    <script>
+        const scene = new THREE.Scene();
+        scene.fog = new THREE.FogExp2(0x0b0d12, 0.012);
+
+        const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.set(0, 10, 40);
+
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        document.getElementById('canvas-container').appendChild(renderer.domElement);
+
+        const controls = new THREE.OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+
+        // 科研图例级光照
+        scene.add(new THREE.AmbientLight(0xffffff, 0.8));
+        const dirLight = new THREE.DirectionalLight(0xffffff, 0.6);
+        dirLight.position.set(15, 30, 20);
+        scene.add(dirLight);
+
+        let realBrainModel = null;
+        let opticLobe = null;   // 视觉区 Mesh
+        let motorNeuron = null; // 运动区 Mesh
+
+        // 核心：加载从 FlyWire/Codex 或 FlyGym 下载的真实 .gltf 文件
+        const loader = new THREE.GLTFLoader();
+
+        // 记得将下载的文件命名为 fly_brain.gltf 放到同级目录下
+        loader.load('./fly_brain.gltf', (gltf) => {
+            realBrainModel = gltf.scene;
+            scene.add(realBrainModel);
+
+            // 遍历真实 Mesh 并根据解剖结构建立引线高亮
+            realBrainModel.traverse((child) => {
+                if (child.isMesh) {
+                    // 赋给它像 FlyWire 一样饱和亮丽的生物粉/紫/青配色
+                    child.material = new THREE.MeshPhongMaterial({
+                        color: child.material.color || 0x34c759,
+                        shininess: 40
+                    });
+
+                    if (child.name.toLowerCase().includes('optic')) opticLobe = child;
+                    if (child.name.toLowerCase().includes('motor') || child.name.toLowerCase().includes('sez')) motorNeuron = child;
+                }
+            });
+
+            document.getElementById('status').innerText = "状态: 真实 3D 模型加载成功！";
+        }, undefined, (err) => {
+            document.getElementById('status').innerText = "提示: 请把下载的真实 fly_brain.gltf 放在同级目录";
+        });
+
+        // 供 Flappy Bird 小鸟游戏调用的 API 接口
+        window.triggerFlap = function() {
+            const statusEl = document.getElementById('status');
+            statusEl.innerText = "⚡ 视叶感知障碍物 -> 传递至运动神经元 -> Flap!";
+            statusEl.style.color = "#ff3b30";
+            statusEl.style.borderColor = "#ff3b30";
+
+            // 1. 视叶脉冲点亮
+            if (opticLobe) opticLobe.material.color.setHex(0x00ffff);
+
+            // 2. 信号向下传导至运动区点亮
+            setTimeout(() => {
+                if (motorNeuron) motorNeuron.material.color.setHex(0xff0055);
+            }, 100);
+
+            // 3. 恢复常态
+            setTimeout(() => {
+                if (opticLobe) opticLobe.material.color.setHex(0x34c759);
+                if (motorNeuron) motorNeuron.material.color.setHex(0x5856d6);
+                statusEl.innerText = "状态: 巡航飞行中...";
+                statusEl.style.color = "#00f0ff";
+                statusEl.style.borderColor = "#00f0ff";
+            }, 400);
+
+            // 在这里调用你小鸟游戏里的跳跃函数，例如：
+            // if (window.myBird) window.myBird.jump();
+        };
+
+        function animate() {
+            requestAnimationFrame(animate);
+            if (realBrainModel) realBrainModel.rotation.y += 0.003;
+            controls.update();
+            renderer.render(scene, camera);
+        }
+        animate();
+
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+    </script>
+</body>
+</html>
