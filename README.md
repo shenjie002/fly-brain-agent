@@ -121,6 +121,20 @@ python serve.py             # → http://localhost:8090
   neurons actually make decisions. True hundreds of functional neurons (like the
   167k-neuron MaleCNS connectome) would require a larger backend neural model.
 
+### Acknowledgements
+
+This project builds on **[FlyGym (NeuroMechFly v2)](https://github.com/NeLy-EPFL/flygym)**
+by the [Ramdya Lab](https://www.epfl.ch/labs/ramdya-lab/) at EPFL.
+FlyGym provides the fruit fly body model (MuJoCo MJCF + STL meshes), the CPG-based
+hexapod locomotion controller, and the MuJoCo WASM build used in the browser.
+Without their work this project would not exist.
+
+> Wang-Chen S., Stimpfling V.A., Lam T.K.C., Özdil P.G., Genoud L., Hurtak F., Ramdya P.
+> *NeuroMechFly 2.0, a framework for simulating embodied sensorimotor control in adult Drosophila.*
+> Nature Methods, 2024. https://doi.org/10.1038/s41592-024-02497-y
+>
+> [github.com/NeLy-EPFL/flygym](https://github.com/NeLy-EPFL/flygym) — Apache-2.0 License
+
 
 ---
 
@@ -203,6 +217,16 @@ python serve.py             # → http://localhost:8090
 - 脑图里约 335 个节点是可视化增强，真正做决策的只有那 13 个真实运动神经元。
   要真正上百个有功能的神经元(像 16.7 万神经元的 MaleCNS 连接组)，需要换更大的
   后端神经模型。
+
+### 致谢 / Acknowledgements
+
+本项目的果蝇 3D 模型、MuJoCo MJCF 场景文件、STL 网格资产，以及 CPG 六足步态控制器的设计，均来自或参考自 **FlyGym (NeuroMechFly v2)** 项目：
+
+> Wang-Chen S, Stimpfling VA, Lam TKC, Özdil PG, Genoud L, Hurtak F, Ramdya P.  
+> *NeuroMechFly v2, simulating embodied sensorimotor control in adult Drosophila.*  
+> [github.com/NeLy-EPFL/flygym](https://github.com/NeLy-EPFL/flygym) — Apache-2.0 License
+
+感谢 EPFL Ramdya Lab 开放这套高质量的果蝇仿真框架。
 
 ---
 
