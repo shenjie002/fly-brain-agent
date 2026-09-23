@@ -1,7 +1,14 @@
-neuprint-python>=0.6.3
-navis>=1.10.0
-plotly>=6.0.0
+# FlyBrain Agent — live backend (pipeline.py + motor_map.py + simulator.py)
+# Laya fast-brain decision → LIF spiking → motor decode, served over FastAPI.
+
+# Laya typed-decision model (native MLX inference, Apple silicon).
+# Pulls in huggingface-hub / mlx / tokenizers as transitive deps.
+laya-mlx>=0.2.0
+
+# Numerics for the LIF network + motor decoding.
 numpy>=1.24.0
+
+# HTTP service layer for POST /decide.
 fastapi>=0.110.0
 uvicorn>=0.29.0
-python-dotenv>=1.0.0
+pydantic>=2.0.0
