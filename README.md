@@ -10,6 +10,32 @@
 
 ---
 
+## 🌐 Live demo / 在线体验
+
+No install needed — open it in your browser / 无需安装，直接浏览器打开：
+
+- **Home / 首页**: https://shenjie002.github.io/fly-brain-agent/
+- **FlyBrain Flappy**: https://shenjie002.github.io/fly-brain-agent/brain-game/flappy.html
+- **Race track / 自由赛道**: https://shenjie002.github.io/fly-brain-agent/brain-game/game.html
+
+> The live site runs in **offline neural mode**: the Laya language model isn't
+> hosted, so decisions use a keyword heuristic, but the 13-neuron LIF dynamics
+> are ported to JavaScript (`neural-fallback.js`) and run in-browser, so the
+> spike raster and brain map are the real thing. To drive decisions with the
+> actual Laya model, run `pipeline.py` locally (see below).
+>
+> On first load a service worker (`coi-serviceworker.js`) installs to enable
+> `SharedArrayBuffer` (needed by MuJoCo WASM) and reloads the page once — that's
+> expected.
+>
+> 在线站点跑的是 **离线神经模式**：Laya 语言模型没有托管，决策用关键词启发式，
+> 但 13 神经元的 LIF 动力学已移植成 JS(`neural-fallback.js`)在浏览器里跑，
+> 所以放电栅格和脑图是真算的。要用真正的 Laya 模型做决策，请在本地起
+> `pipeline.py`(见下文)。首次打开会安装一个 service worker 注入 COOP/COEP 头
+> (MuJoCo WASM 需要 SharedArrayBuffer)并自动刷新一次，属正常现象。
+
+---
+
 ## English
 
 ### What is this?
